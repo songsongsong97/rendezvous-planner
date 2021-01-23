@@ -1,0 +1,74 @@
+{% include 'planner/header.html' %}
+{% load static %}
+{% block content %}
+    <div class="title">
+      <div class="row justify-content-center align-items-center">
+        <div class="col-3 title-item"><strong class="control-month" onclick="decreaseMonth()">&lt;&lt;</strong></div>
+        <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-left.png' %}" alt="flower" width="30%"></div> -->
+        <div class="col-6 title-item"><a href="{% url 'summary' currentYear currentMonth%}"><h1 class="month-title">{{currentMonthStr}} {{currentYear}}</h1></a></div>
+        <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-right.png' %}" alt="flower" width="30%"></div> -->
+        <div class="col-3 title-item"><strong class="control-month" onclick="increaseMonth()">&gt;&gt;</strong></div>
+      </div>
+    </div>
+    <div class="calendar">
+        <!-- weekday -->
+        <div class="week-title-row">
+          <div class="row">
+            <div class="col">S</div>
+            <div class="col">M</div>
+            <div class="col">T</div>
+            <div class="col">W</div>
+            <div class="col">T</div>
+            <div class="col">F</div>
+            <div class="col">S</div>
+          </div>
+        </div>
+        <div class="calendar-container">
+
+          {% for week, days_in_a_week in all_weeks.items %}
+          <div class="row">
+            {% for day in days_in_a_week %}
+            <div class="col calendar-item-container d-flex justify-content-center">
+              {% if day.day in dates_with_plan %}
+                <span class="dot"></span>
+              {% endif %}
+              <strong><a class="date-item-link" href="{% url 'date' day.year day.month day.day %}" id="{{day.year}}-{{day.month}}-{{day.day}}">{{day.day}}</a></strong>
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+      </div>
+    </div>
+{% endblock content %}
+<script type="text/javascript">
+  var today = new Date();
+  var todayString = today.getFullYear() +"-" + (today.getMonth() + 1) + "-" + today.getDate();
+  try{
+    document.getElementById(todayString).style.background = "#a3d8f4";
+  }
+  catch{}
+
+  var currentMonth = {{currentMonth}};
+  var currentYear = {{currentYear}};
+
+  function increaseMonth(){
+    newMonth = currentMonth + 1;
+    newYear = currentYear;
+    if(newMonth == 13){
+      newMonth = 1;
+      newYear += 1;
+    }
+    window.location = "{% url 'calendar_by_month' 'bbbb' 'aa' %}".replace('aa',newMonth).replace('bbbb',newYear);
+  }
+
+  function decreaseMonth(){
+    newMonth = currentMonth - 1;
+    newYear = currentYear;
+    if(newMonth == 0){
+      newMonth = 12;
+      newYear -= 1;
+    }
+    window.location = "{% url 'calendar_by_month' 'bbbb' 'aa' %}".replace('aa',newMonth).replace('bbbb',newYear);
+  }
+</script>
+{% include 'planner/footer.html' %}

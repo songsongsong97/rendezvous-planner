@@ -1,0 +1,131 @@
+{% include 'planner/header.html' %}
+{% load static %}
+{% block content %}
+<div class="title">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-3 title-item"><strong class="control-month" onclick="decreaseMonth()">&lt;&lt;</strong></div>
+    <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-left.png' %}" alt="flower" width="30%"></div> -->
+    <div class="col-6 title-item"><a href="{% url 'summary' currentYear currentMonth%}"><h1 class="month-title">{{currentMonthStr}} {{currentYear}}</h1></a></div>
+    <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-right.png' %}" alt="flower" width="30%"></div> -->
+    <div class="col-3 title-item"><strong class="control-month" onclick="increaseMonth()">&gt;&gt;</strong></div>
+  </div>
+</div>
+<div class="expense-chart">
+  {% if total_sum.SGD or total_sum.MYR %}
+    <h2>Expenses Pie Chart</h2>
+    <div class="row">
+      {% if has_expenses.SGD and has_expenses.MYR %}
+          <div id="chart_sgd" class="pie-chart col-12 col-md-6"></div>
+          <div id="chart_myr" class="pie-chart col-12 col-md-6"></div>
+      {% elif has_expenses.SGD  %}
+        <div id="chart_sgd" class="pie-chart col-12"></div>
+      {% elif has_expenses.MYR  %}
+        <div id="chart_myr" class="pie-chart col-12"></div>
+      {% endif %}
+    </div>
+    <form id="download-container" name="exportFile" action="{% url 'exportFile' currentYear currentMonth%}" method="get">
+      <!--Div that will hold the pie chart-->
+      <button type="submit" name="exportFile" class="btn btn-primary other-button">Download Report</button>
+    </form>
+  {% endif %}
+  {% for currency,sum in total_sum.items %}
+
+    {% if sum > 0 %}
+      <h1 style="color:#14b1ab">{{currency}} {{sum}}</h1>
+    {% elif sum < 0 %}
+      <h1 style="color:#e8505b">{{currency}} {{sum}}</h1>
+    {% endif %}
+  {% endfor %}
+</div>
+<div class="daily-summary">
+  {% for date,values in sum_by_date.items %}
+    {% for currency, sum in values.items %}
+      {% if date != 'total' %}
+      <div class="row">
+        {% if sum > 0 %}
+          <div class="col-7 col-md-9"><a href="{% url 'date' currentYear currentMonth date %}">{{date}}-{{currentMonthStr}}</a></div>
+          <div class="col-5 col-md-3" style="color:#14b1ab">{{currency}}{{sum}}</div>
+        {% elif sum < 0 %}
+          <div class="col-7 col-md-9"><a href="{% url 'date' currentYear currentMonth date %}">{{date}}-{{currentMonthStr}}</a></div>
+          <div class="col-5 col-md-3" style="color:#e8505b">{{currency}}{{sum}}</div>
+        {% endif %}
+      </div>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+</div>
+{% endblock content %}
+<!--Load the AJAX API-->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  var today = new Date();
+  var todayString = today.getFullYear() +"-" + (today.getMonth() + 1) + "-" + today.getDate();
+  try{
+    document.getElementById(todayString).style.background = "#a3d8f4";
+  }
+  catch{}
+
+  var currentMonth = {{currentMonth}};
+  var currentYear = {{currentYear}};
+
+  function increaseMonth(){
+    newMonth = currentMonth + 1;
+    newYear = currentYear;
+    if(newMonth == 13){
+      newMonth = 1;
+      newYear += 1;
+    }
+    window.location = "{% url 'summary' 'bbbb' 'aa' %}".replace('aa',newMonth).replace('bbbb',newYear);
+  }
+
+  function decreaseMonth(){
+    newMonth = currentMonth - 1;
+    newYear = currentYear;
+    if(newMonth == 0){
+      newMonth = 12;
+      newYear -= 1;
+    }
+    window.location = "{% url 'summary' 'bbbb' 'aa' %}".replace('aa',newMonth).replace('bbbb',newYear);
+  }
+  // Load the Visualization API and the corechart package.
+  google.charts.load('current', {'packages':['corechart']});
+
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.charts.setOnLoadCallback(drawChart);
+
+  // Callback that creates and populates a data table,
+  // instantiates the pie chart, passes in the data and
+  // draws it.
+  function drawChart() {
+
+    // Create the data table.
+    if ({{has_expenses.SGD|yesno:"true,false" }}){
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Topping');
+      data.addColumn('number', 'Slices');
+      data.addRows({{ total_expense_by_category_sg|safe }});
+
+      // Set chart options
+      var options = {'title': 'Expenses Pie Chart (SGD)'};
+
+      // Instantiate and draw our chart, passing in some options.
+      var chart = new google.visualization.PieChart(document.getElementById('chart_sgd'));
+      chart.draw(data, options);
+    }
+
+    if ({{has_expenses.MYR|yesno:"true,false" }}){
+      var data2 = new google.visualization.DataTable();
+      data2.addColumn('string', 'Topping');
+      data2.addColumn('number', 'Slices');
+      data2.addRows({{ total_expense_by_category_myr|safe }});
+
+      // Set chart options
+      var options2 = {'title': 'Expenses Pie Chart (MYR)'};
+
+      // Instantiate and draw our chart, passing in some options.
+      var chart2 = new google.visualization.PieChart(document.getElementById('chart_myr'));
+      chart2.draw(data2, options2);
+    }
+  }
+</script>
+{% include 'planner/footer.html' %}

@@ -1,0 +1,305 @@
+{% include 'planner/header.html' %}
+{% load static %}
+{% block content %}
+<div class="title">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-3 title-item"><strong class="control-month" onclick="decreaseDay()">&lt;&lt;</strong></div>
+    <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-left.png' %}" alt="flower" width="30%"></div> -->
+    <div class="col-6 title-item">
+      <h1 class="month-title">{{ dateString }}</h1>
+    </div>
+    <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-right.png' %}" alt="flower" width="30%"></div> -->
+    <div class="col-3 title-item"><strong class="control-month" onclick="increaseDay()">&gt;&gt;</strong></div>
+  </div>
+</div>
+<div class="flex-container">
+  <div class="flex-column">
+
+    <div class="planner-container">
+      <div class="planner-bg">
+        <h4 class="small-title">To-do list</h4>
+        {% if edit_task %}
+        <form class="form-wrapper" method="post" action="{% url 'update' currentYear currentMonth currentDay edit_task.id %}">
+          {% csrf_token %}
+          <div class="row justify-content-center align-items-center">
+            <div class="col-12 col-md-9">
+              <input id="title" class="form-control" type="text" name="title" placeholder="Add Task" value="{{edit_task.title}}">
+              <!-- {{ planner_form.plan }} -->
+            </div>
+            <div class="col-12 col-md-3">
+              <button type="submit" name="todo_submit" class="btn btn-primary other-button">Submit</button>
+            </div>
+          </div>
+        </form>
+        {% else %}
+        <!-- add new todo task -->
+        <form class="form-wrapper" method="post" action="{% url 'date' currentYear currentMonth currentDay %}">
+          {% csrf_token %}
+          <div class="row justify-content-center align-items-center">
+            <div class="col-12 col-md-9">
+              <input id="title" class="form-control" type="text" name="title" placeholder="Add task">
+              <!-- {{ todo_form.title }} -->
+            </div>
+            <div class="col-12 col-md-3">
+              <button type="submit" name="todo_submit" class="btn btn-primary other-button">➕</button>
+            </div>
+          </div>
+        </form>
+        {% endif %}
+        {% for todo in todos %}
+        <form class="list-wrapper" action="{% url 'delete_or_update' currentYear currentMonth currentDay 'todo' todo.id %}" method="post">
+          {% csrf_token %}
+          <div class="row justify-content-center align-items-center">
+            <div class="col-12 col-md-8">
+              {% if todo.completed == True %}
+              <strike>{{ todo.title }}</strike>
+              {% else %}
+              <span>{{ todo.title }}</span>
+              {% endif %}
+            </div>
+            <div class="col-12 col-md-3">
+              <input id="submit" class="btn btn-sm btn-outline-info control-buttons" name="complete_task" type="submit" value="✔️">
+              <input id="submit" class="btn btn-sm btn-outline-info control-buttons" name="delete_task" type="submit" value="➖">
+              <input id="submit" class="btn btn-sm btn-outline-info control-buttons" name="edit_task" type="submit" value="✏️">
+            </div>
+          </div>
+        </form>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- plan -->
+    <div class="planner-container">
+      <div class="planner-bg">
+        <h4 class="small-title">Today's Plan</h4>
+        {% if edit_plan %}
+        <!-- edit plan -->
+        <div class="daily-expenses-container">
+          <form class="daily-expenses-form" action="{% url 'update' currentYear currentMonth currentDay edit_plan.id %}" method="post">
+            {% csrf_token %}
+            <div class="form-group row">
+              <label for="plan" class="col-sm-3 form-label">Plan</label>
+              <div class="col-sm-9">
+                <input id="plan" class="form-control add-expense" type="text" name="plan" placeholder="Add Plan" value="{{edit_plan.plan}}" required>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="start_time" class="col-sm-3 form-label">Start Time</label>
+              <div class="col-sm-9" id="start_time">
+                {{ planner_form.start_time }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="end_time" class="col-sm-3 form-label">End Time</label>
+              <div class="col-sm-9" id="end_time">
+                {{ planner_form.end_time }}
+              </div>
+            </div>
+            <div class="form-group">
+              <button type="submit" name="planner_submit" class="btn btn-primary custom-button">Submit</button>
+            </div>
+            <p>{{planner_form.errors}}</p>
+          </form>
+        </div>
+        {% else %}
+        <!-- add new plan -->
+        <div class="daily-expenses-container">
+          <form class="daily-expenses-form" action="{% url 'date' currentYear currentMonth currentDay %}" method="post">
+            {% csrf_token %}
+            <div class="form-group row">
+              <label for="plan" class="col-sm-3 form-label">Plan</label>
+              <div class="col-sm-9">
+                <input id="plan" class="form-control add-expense" type="text" name="plan" placeholder="Add Plan" required>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="start_time" class="col-sm-3 form-label">Start Time</label>
+              <div class="col-sm-9" id="start_time">
+                {{ planner_form.start_time }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="end_time" class="col-sm-3 form-label">End Time</label>
+              <div class="col-sm-9" id="end_time">
+                {{ planner_form.end_time }}
+              </div>
+            </div>
+            <div class="form-group">
+              <button type="submit" name="planner_submit" class="btn btn-primary custom-button">Submit</button>
+            </div>
+            <p>{{planner_form.errors}}</p>
+          </form>
+        </div>
+        {% endif %}
+        <!-- display plans -->
+        {% for plan in plans %}
+        <form class="list-wrapper" action="{% url 'delete_or_update' currentYear currentMonth currentDay 'plan' plan.id %}" method="post">
+          {% csrf_token %}
+          <div class="row justify-content-center align-items-center">
+              {% if plan.is_ended == True %}
+                <div class="col-7 col-md-7"><strike>{{ plan.plan }}</strike></div>
+                <div class="col-5 col-md-5"><strike>{{ plan.start_time }} - {{plan.end_time}}</strike></div>
+              {% else %}
+                <div class="col-7 col-md-7"><span>{{ plan.plan }}</span></div>
+                <div class="col-5 col-md-5"><span>{{ plan.start_time }} - {{plan.end_time}}</span></div>
+              {% endif %}
+            <div class="col-12 col-md-3">
+              <input id="submit" class="btn btn-sm btn-outline-info control-buttons" name="complete_plan" type="submit" value="✔️">
+              <input id="submit" class="btn btn-sm btn-outline-info control-buttons" name="delete_plan" type="submit" value="➖">
+              <input id="submit" class="btn btn-sm btn-outline-info control-buttons" name="edit_plan" type="submit" value="✏️">
+            </div>
+          </div>
+        </form>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- daily expenses -->
+  <div class="flex-column">
+    <div class="planner-container">
+      <div class="planner-bg">
+        <div class="planner-inner-bg">
+          <h4 class="small-title">Daily Expenses</h4>
+
+          <!-- add new item -->
+          <div class="daily-expenses-container">
+          {% if edit_expense %}
+            <form class="daily-expenses-form" action="{% url 'update' currentYear currentMonth currentDay edit_expense.id %}" method="post">
+          {% else %}
+            <form class="daily-expenses-form" action="{% url 'date' currentYear currentMonth currentDay %}" method="post">
+          {% endif %}
+              {% csrf_token %}
+              <div class="form-group row">
+                <label for="expense-title" class="col-sm-3 form-label">Title</label>
+                <div class="col-sm-9">
+                  <input id="expense_title" class="form-control add-expense" type="text" name="expense_title" placeholder="Add Item" value="{{edit_expense.expense_title}}" required>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="type" class="col-sm-3 form-label">Type</label>
+                <div class="col-sm-9">
+                  {{ daily_expenses_form.type }}
+                </div>
+              </div>
+              <div class="form-group row" id="expense-category">
+                <label for="category" class="col-sm-3 form-label">Category</label>
+                <div class="col-sm-9">
+                  {{ daily_expenses_form.category }}
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="currency" class="col-sm-3 form-label">Currency</label>
+                <div class="col-sm-9">
+                  {{ daily_expenses_form.currency }}
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-3 form-label">Amount</label>
+                <div class="col-sm-9">
+                  <!-- <input id="amount" class="form-control-2" type="text" name="amount" placeholder="Amount"> -->
+                  {{ daily_expenses_form.amount }}
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-lg-12">
+                  <button type="submit" name="expense_submit" class="btn btn-primary custom-button">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- display items -->
+          {% for expense in daily_expenses %}
+          <form class="list-wrapper" action="{% url 'delete_or_update' currentYear currentMonth currentDay 'expense' expense.id %}" method="post">
+            {% csrf_token %}
+            <div class="row justify-content-center align-items-center">
+              <div class="col-1 col-md-1">
+                <p>{{ forloop.counter }}.</p>
+              </div>
+              <div class="col-10 col-md-5">
+                <p>{{expense.expense_title}}</p>
+              </div>
+              <div class="col-6 col-md-3">
+                <p>{{expense.type}}</p>
+              </div>
+              <div class="col-6 col-md-3">
+                <p>{{expense.currency}}{{expense.amount}}</p>
+              </div>
+              <div class="col-6 col-md-6">
+                <p>{{expense.category}}</p>
+              </div>
+              <div class="col-6 col-md-6">
+                <input id="submit" class="btn btn-sm btn-outline-info control-buttons" type="submit" name="delete_expense" value="➖">
+                <input id="submit" class="btn btn-sm btn-outline-info control-buttons" type="submit" value="✏️">
+              </div>
+            </div>
+          </form>
+          {% endfor %}
+          <div class="total-sum">
+            {% for key,value in total_expenses.items %}
+            <div class="row justify-content-center align-items-center">
+              <div class="col-7 col-md-9">Total Expenses ({{key}})</div>
+              <div class="col-4 col-md-3">{{value}}</div>
+            </div>
+            {% endfor %}
+            {% for key,value in total_income.items %}
+            <div class="row justify-content-center align-items-center">
+              <div class="col-7 col-md-9">Total Income ({{key}})</div>
+              <div class="col-4 col-md-3">{{value}}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+<script type="text/javascript">
+  var currentMonth = {{currentMonth}};
+  var currentYear = {{currentYear}};
+  var currentDay = {{currentDay}};
+
+  function increaseDay() {
+    var newDate = new Date(currentYear, currentMonth - 1, currentDay);
+    newDate = new Date(newDate.setDate(newDate.getDate() + 1));
+    newYear = newDate.getFullYear();
+    newMonth = newDate.getMonth();
+    newDay = newDate.getDate();
+    window.location = "{% url 'date' 'yyyy' 'mm' 'dd' %}".replace('mm', newMonth + 1).replace('yyyy', newYear).replace('dd', newDay);
+  }
+
+  function decreaseDay() {
+    var newDate = new Date(currentYear, currentMonth - 1, currentDay);
+    newDate = new Date(newDate.setDate(newDate.getDate() - 1));
+    newYear = newDate.getFullYear();
+    newMonth = newDate.getMonth();
+    newDay = newDate.getDate();
+    window.location = "{% url 'date' 'yyyy' 'mm' 'dd' %}".replace('mm', newMonth + 1).replace('yyyy', newYear).replace('dd', newDay);
+  }
+
+function hideCategories(){
+  var choice = document.getElementById("id_type").value;
+  if (choice == 'Income'){
+     $('#expense-category').hide();
+  }
+  else{
+    $('#expense-category').show();
+  }
+}
+  // $('#type').on('change', function (e) {
+  //   alert("change");
+  //   var optionSelected = $("option:selected", this);
+  //   var valueSelected = this.value;
+  //
+  //   if (valueSelected === 1){
+  //       $('#field').hide();
+  //   } else {
+  //       $('#field').show();
+  //   }
+  // });
+</script>
+{% include 'planner/footer.html' %}
