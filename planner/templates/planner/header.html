@@ -19,7 +19,6 @@
   <script type="text/javascript">
     function openNav() {
       document.getElementById("mySidenav").style.display = "block";
-      //document.body.style.backgroundColor = "rgba(0,0,0,0.8)";
     }
 
     function closeNav() {
@@ -36,9 +35,6 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           {% if request.user.is_authenticated %}
-          <!-- <li class="nav-item">
-              <p class="nav-link">Hello, {{request.user}}</p>
-            </li> -->
           <li class="nav-item">
             <p class="header-item">Hello, {{request.user}}</p>
             <a class="nav-link header-item" href="{% url 'logout' %}">Logout</a>

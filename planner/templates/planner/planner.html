@@ -4,11 +4,9 @@
 <div class="title">
   <div class="row justify-content-center align-items-center">
     <div class="col-3 title-item"><strong class="control-month" onclick="decreaseDay()">&lt;&lt;</strong></div>
-    <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-left.png' %}" alt="flower" width="30%"></div> -->
     <div class="col-6 title-item">
       <h1 class="month-title">{{ dateString }}</h1>
     </div>
-    <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-right.png' %}" alt="flower" width="30%"></div> -->
     <div class="col-3 title-item"><strong class="control-month" onclick="increaseDay()">&gt;&gt;</strong></div>
   </div>
 </div>
@@ -24,7 +22,6 @@
           <div class="row justify-content-center align-items-center">
             <div class="col-12 col-md-9">
               <input id="title" class="form-control" type="text" name="title" placeholder="Add Task" value="{{edit_task.title}}">
-              <!-- {{ planner_form.plan }} -->
             </div>
             <div class="col-12 col-md-3">
               <button type="submit" name="todo_submit" class="btn btn-primary other-button">Submit</button>
@@ -38,7 +35,6 @@
           <div class="row justify-content-center align-items-center">
             <div class="col-12 col-md-9">
               <input id="title" class="form-control" type="text" name="title" placeholder="Add task">
-              <!-- {{ todo_form.title }} -->
             </div>
             <div class="col-12 col-md-3">
               <button type="submit" name="todo_submit" class="btn btn-primary other-button">➕</button>
@@ -199,7 +195,6 @@
               <div class="form-group row">
                 <label for="amount" class="col-sm-3 form-label">Amount</label>
                 <div class="col-sm-9">
-                  <!-- <input id="amount" class="form-control-2" type="text" name="amount" placeholder="Amount"> -->
                   {{ daily_expenses_form.amount }}
                 </div>
               </div>
@@ -290,16 +285,5 @@ function hideCategories(){
     $('#expense-category').show();
   }
 }
-  // $('#type').on('change', function (e) {
-  //   alert("change");
-  //   var optionSelected = $("option:selected", this);
-  //   var valueSelected = this.value;
-  //
-  //   if (valueSelected === 1){
-  //       $('#field').hide();
-  //   } else {
-  //       $('#field').show();
-  //   }
-  // });
 </script>
 {% include 'planner/footer.html' %}

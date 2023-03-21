@@ -4,9 +4,7 @@
 <div class="title">
   <div class="row justify-content-center align-items-center">
     <div class="col-3 title-item"><strong class="control-month" onclick="decreaseMonth()">&lt;&lt;</strong></div>
-    <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-left.png' %}" alt="flower" width="30%"></div> -->
     <div class="col-6 title-item"><a href="{% url 'summary' currentYear currentMonth%}"><h1 class="month-title">{{currentMonthStr}} {{currentYear}}</h1></a></div>
-    <!-- <div class="col-3"><img src="{% static 'planner/images/leaf-right.png' %}" alt="flower" width="30%"></div> -->
     <div class="col-3 title-item"><strong class="control-month" onclick="increaseMonth()">&gt;&gt;</strong></div>
   </div>
 </div>
@@ -23,9 +21,9 @@
         <div id="chart_myr" class="pie-chart col-12"></div>
       {% endif %}
     </div>
-    <form id="download-container" name="exportFile" action="{% url 'exportFile' currentYear currentMonth%}" method="get">
+    <form id="download-container" name="export_file" action="{% url 'export_file' currentYear currentMonth%}" method="get">
       <!--Div that will hold the pie chart-->
-      <button type="submit" name="exportFile" class="btn btn-primary other-button">Download Report</button>
+      <button type="submit" name="export_file" class="btn btn-primary other-button">Download Report</button>
     </form>
   {% endif %}
   {% for currency,sum in total_sum.items %}
